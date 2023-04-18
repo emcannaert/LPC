@@ -9,8 +9,9 @@ process.GlobalTag.globaltag = '106X_upgrade2018_realistic_v16_L1v1'
 
 process.options = cms.untracked.PSet( allowUnscheduled = cms.untracked.bool(True) )
 
+
 ####################### new JEC stuff########################################
-#process.load('JetMETCorrections.Configuration.JetCorrectors_cff')
+#process.load('JetMETCorrections.Configuration.JetCorrectors_cff
 ##################################################################################
 #                            BEST Jet Correction                                     #
 ##################################################################################
@@ -24,8 +25,11 @@ updateJetCollection(
    postfix = 'UpdatedJEC',
    printWarning = False
 )
-##############################################################################
+process.content = cms.EDAnalyzer("EventContentAnalyzer")
 
+
+
+##############################################################################
 process.leptonVeto = cms.EDFilter("leptonVeto",
    muonCollection= cms.InputTag("slimmedMuons"),
    electronCollection = cms.InputTag("slimmedElectrons"),
@@ -33,7 +37,7 @@ metCollection = cms.InputTag("slimmedMETs"),
    tauCollection = cms.InputTag("slimmedTaus")
 )
 process.hadronFilter = cms.EDFilter("hadronFilter",
-   fatJetCollection = cms.InputTag("updatedPatJetsAK8UpdatedJEC"),#fatJetCollection = cms.InputTag("slimmedJetsAK8"),
+   fatJetCollection = cms.InputTag("selectedUpdatedPatJetsUpdatedJEC"),#fatJetCollection = cms.InputTag("slimmedJetsAK8"),
 metCollection = cms.InputTag("slimmedMETs"), 
   jetCollection = cms.InputTag("slimmedJets"),
    bits = cms.InputTag("TriggerResults", "", "HLT"),
@@ -42,7 +46,7 @@ process.clusteringAnalyzerAll = cms.EDAnalyzer("clusteringAnalyzerAll",
 runType = cms.string("BRMC"),
 genPartCollection = cms.InputTag("prunedGenParticles"),
  name = cms.string('BESTGraph'),   path = cms.FileInPath('data/constantgraph.pb'), means = cms.FileInPath('data/ScalerParameters_maxAbs_train.txt'),#fatJetCollection = cms.InputTag("slimmedJetsAK8"),
-   fatJetCollection = cms.InputTag("updatedPatJetsAK8UpdatedJEC"),
+   fatJetCollection = cms.InputTag("selectedUpdatedPatJetsUpdatedJEC"),
    jetCollection = cms.InputTag("slimmedJets"),
    bits = cms.InputTag("TriggerResults", "", "HLT"),
    muonCollection= cms.InputTag("slimmedMuons"),
@@ -72,9 +76,7 @@ process.options = cms.untracked.PSet(
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
-process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
-process.p = cms.Path( process.hadronFilter * process.leptonVeto * 
-process.clusteringAnalyzerAll  #needs star  process.JECSequence*
+process.p = cms.Path(process.leptonVeto *  process.content* process.hadronFilter * process.clusteringAnalyzerAll  #needs star  process.JECSequence*
    # 
 )
